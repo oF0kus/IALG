@@ -41,6 +41,7 @@ void lerArquivo() {
             getline(entrada, algumMBC.diretor, ',');
             entrada >> algumMBC.bilheteria;
             vetorMBC[i] = algumMBC;
+            vetorMBC[i].imprime();
         }
 
         delete[] vetorMBC;
@@ -71,7 +72,7 @@ void menu(){
     
     case 1:{
 
-        imprime();
+        lerArquivo();
     }
         break;
 
@@ -88,45 +89,7 @@ void menu(){
    
 } while( opcao != 0 );
 
-}
 
-
-
-void menu(){
-    int opcao = 999;
-   do{ 
-    cout<<"Escolha uma opção:"<<endl;
-        cout<<"\t1. Listar Filmes"<<endl;
-        cout<<"\t2. Cadastrar novo Filme"<<endl;
-        cout<<"\t3. Buscar Filme"<<endl;
-        cout<<"\t4. Deletar Filme"<<endl;
-        cout<<"\t5. Alterar Dados de um Filme"<<endl;
-        cout<<"\t6. Imprimir Filmes por Intervalo"<<endl;
-        cout<<"\t7. Salvar alterações"<<endl;
-        cout<<"\t8. Sair"<<endl;
-        cin >> opcao;
-
-    switch (opcao)
-    {
-    
-    case 1:{
-
-        cout << 'a' << endl;
-    }
-        break;
-
-    case 0:{
-        cout << "Saindo" << endl;
-    }
-        break;
-
-    default:
-        cout << "Opcao invalida" << endl;
-        break;
-    }
-
-   
-} while( opcao != 0 );
 
 }
 
