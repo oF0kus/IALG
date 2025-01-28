@@ -101,23 +101,24 @@ void registro(MBC filme[], int& indice) {
     indice++;
 }
 
-void salvarArquivo(MBC filme[], int indice) {
-    ofstream saida("MaioresBilheteriasCinema.csv");
+void salvarArquivo(MBC filme[], int indice, int inicioNovos) {
+    ofstream saida("MaioresBilheteriasCinema.csv", ios::app); 
+
     if (saida) {
-        saida << "Ranking,Ano,Nome,Diretor,Bilheteria" << endl; 
-        for (int i = 0; i < indice; i++) {
+        for (int i = inicioNovos; i < indice; i++) { 
             saida << filme[i].ranking << ","
                   << filme[i].lancamento << ","
                   << filme[i].nome << ","
                   << filme[i].diretor << ","
                   << fixed << setprecision(0) << filme[i].bilheteria << endl;
         }
-        cout << "Alterações salvas no arquivo com sucesso!" << endl;
+        cout << "Novos filmes adicionados ao arquivo com sucesso!" << endl;
     } else {
         cout << "Erro ao abrir o arquivo para salvar." << endl;
     }
 }
 void menu(MBC filme[], int& indice) {
+	int inicioNovos = indice; // Marca a posição inicial dos novos filmes
     int opcao = 999;
     do {
         cout<<"Escolha uma opção:"<<endl;
@@ -148,8 +149,10 @@ void menu(MBC filme[], int& indice) {
                 buscaR(busca, indice, filme);
             } break;
             case 7: {
-				salvarArquivo(filme, indice);
+				salvarArquivo(filme, indice, inicioNovos);
+				inicioNovos = indice; // Atualiza o início dos novos registros
 			} break;
+
             case 0: {
                 cout << "Saindo..." << endl;
             } break;
