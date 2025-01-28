@@ -59,21 +59,64 @@ void buscaR(string& busca, const int indice, MBC filme[]) {
     getline(cin, busca);
 
     int i = 0, posicao = -1;
-    while (i < indice && busca != filme[i].nome) {
+    while (i < indice and busca != filme[i].nome) {
         i++;
     }
 
-    if (i < indice && busca == filme[i].nome) {
+    if (i < indice and busca == filme[i].nome) {
         posicao = i;
     }
 
     if (posicao == -1) {
-        cout << "O livro nao esta disponivel" << endl;
+        cout << "O filme não esta disponivel" << endl;
     } else {
         imprime(filme, posicao);
     }
 }
+void registro(MBC filme[], int& indice) {
+    if (indice >= 100) {
+        cout << "Capacidade máxima atingida, não é possível adicionar mais filmes." << endl;
+        return;
+    }
 
+    cout << "Digite o ranking do filme: ";
+    cin >> filme[indice].ranking;
+    cin.ignore(); 
+
+    cout << "Digite o ano de lançamento: ";
+    cin >> filme[indice].lancamento;
+    cin.ignore();
+
+    cout << "Digite o nome do filme: ";
+    getline(cin, filme[indice].nome);
+
+    cout << "Digite o nome do diretor: ";
+    getline(cin, filme[indice].diretor);
+
+    cout << "Digite a bilheteria (em milhões): ";
+    cin >> filme[indice].bilheteria;
+
+    cout << "Filme registrado com sucesso!" << endl;
+
+    indice++;
+}
+
+void salvarArquivo(MBC filme[], int indice) {
+    ofstream saida("MaioresBilheteriasCinema.csv");
+    if (saida) {
+        saida << "Ranking,Ano,Nome,Diretor,Bilheteria" << endl; 
+        for (int i = 0; i < indice; i++) {
+            saida << filme[i].ranking << ","
+                  << filme[i].lancamento << ","
+                  << filme[i].nome << ","
+                  << filme[i].diretor << ","
+                  << fixed << setprecision(0) << filme[i].bilheteria << endl;
+        }
+        cout << "Alterações salvas no arquivo com sucesso!" << endl;
+    } else {
+        cout << "Erro ao abrir o arquivo para salvar." << endl;
+    }
+}
 void menu(MBC filme[], int& indice) {
     int opcao = 999;
     do {
@@ -95,16 +138,20 @@ void menu(MBC filme[], int& indice) {
                 }
             } break;
             case 2: {
-                cout << "Quantos livros deseja registrar?: ";
+                cout << "Quantos filmes deseja registrar?: ";
                 cin >> indice;
-                //registro(filme, indice) NAO TA FUNCIONANDO ;
+				registro(filme, indice);
+              
             } break;
             case 3: {
                 string busca;
                 buscaR(busca, indice, filme);
             } break;
+            case 7: {
+				salvarArquivo(filme, indice);
+			} break;
             case 0: {
-                cout << "Saindo" << endl;
+                cout << "Saindo..." << endl;
             } break;
             default:
                 cout << "Opcao invalida" << endl;
