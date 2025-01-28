@@ -1,3 +1,19 @@
+/*
+
+    COISAS QUE TEM Q TERMINAR
+
+
+      
+    Cadastrar novo Filme ta dando erro
+    Deletar Filme ainda tem q fazer
+    Imprimir Filmes por Intervalo ainda tem q fazer
+    Salvar alterações ta dando erro e tem que salvar em binario
+    funcao do binario
+
+
+*/
+
+
 #include <iostream>
 #include <fstream>
 #include <string>
@@ -13,6 +29,19 @@ struct MBC {
     float bilheteria;
 
 };
+
+void RedimensionarVetor(MBC *&vetor, int *capacidade) {
+    int novaCapacidade = (*capacidade) + 5;
+    MBC *novoVetor = new MBC[novaCapacidade];
+
+    for (int i = 0; i < *capacidade; i++) {
+        novoVetor[i] = vetor[i];
+    }
+
+    delete[] vetor; 
+    vetor = novoVetor;
+    (*capacidade) = novaCapacidade;  
+}
 
 void imprime(MBC filme[], int indice) {
     cout << "Ranking: " << filme[indice].ranking << endl
@@ -73,10 +102,12 @@ void buscaR(string& busca, const int indice, MBC filme[]) {
         imprime(filme, posicao);
     }
 }
-void registro(MBC filme[], int& indice) {
-    if (indice >= 100) {
-        cout << "Capacidade máxima atingida, não é possível adicionar mais filmes." << endl;
-        return;
+
+
+
+void registro(MBC filme[], int& indice, int *capacidade) {
+    if (indice == *capacidade) {
+        RedimensionarVetor(filme, capacidade);
     }
 
     cout << "Digite o ranking do filme: ";
@@ -93,7 +124,7 @@ void registro(MBC filme[], int& indice) {
     cout << "Digite o nome do diretor: ";
     getline(cin, filme[indice].diretor);
 
-    cout << "Digite a bilheteria (em milhões): ";
+    cout << "Digite a bilheteria : ";
     cin >> filme[indice].bilheteria;
 
     cout << "Filme registrado com sucesso!" << endl;
@@ -117,7 +148,7 @@ void salvarArquivo(MBC filme[], int indice, int inicioNovos) {
         cout << "Erro ao abrir o arquivo para salvar." << endl;
     }
 }
-void menu(MBC filme[], int& indice) {
+void menu(MBC filme[], int& indice, int *capacidade) {
 	int inicioNovos = indice; // Marca a posição inicial dos novos filmes
     int opcao = 999;
     do {
@@ -126,10 +157,10 @@ void menu(MBC filme[], int& indice) {
         cout<<"\t2. Cadastrar novo Filme"<<endl;
         cout<<"\t3. Buscar Filme"<<endl;
         cout<<"\t4. Deletar Filme"<<endl;
-        cout<<"\t5. Alterar Dados de um Filme"<<endl;
-        cout<<"\t6. Imprimir Filmes por Intervalo"<<endl;
-        cout<<"\t7. Salvar alterações"<<endl;
+        cout<<"\t5. Imprimir Filmes por Intervalo"<<endl;
+        cout<<"\t6. Salvar alterações"<<endl;
         cout<<"\t0. Sair"<<endl;
+        cout<<"Digite sua opção: ";
         cin >> opcao;
 
         switch (opcao) {
@@ -139,16 +170,14 @@ void menu(MBC filme[], int& indice) {
                 }
             } break;
             case 2: {
-                cout << "Quantos filmes deseja registrar?: ";
-                cin >> indice;
-				registro(filme, indice);
-              
-            } break;
+                registro(filme, indice, capacidade);
+             } break;
             case 3: {
                 string busca;
+                cin.ignore();
                 buscaR(busca, indice, filme);
             } break;
-            case 7: {
+            case 6: {
 				salvarArquivo(filme, indice, inicioNovos);
 				inicioNovos = indice; // Atualiza o início dos novos registros
 			} break;
@@ -165,12 +194,12 @@ void menu(MBC filme[], int& indice) {
 
 
 int main(){
-    int indice = 0; // Capacidade inicial de filmes
-    MBC filme[100]; // Capacidade máxima de filme
+    int indice = 0, capacidade = 100;
+    MBC *filme = new MBC[capacidade];
 
     lerArquivo(filme, indice);
-    
-    menu(filme, indice);
+    menu(filme, indice, &capacidade);
 
+    delete[] filme;
     return 0;
 }
