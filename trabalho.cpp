@@ -3,13 +3,10 @@
     COISAS QUE TEM Q TERMINAR
 
 
-      
-    Cadastrar novo Filme ta dando erro
     Deletar Filme ainda tem q fazer
     Imprimir Filmes por Intervalo ainda tem q fazer
     Salvar alterações ta dando erro e tem que salvar em binario
     funcao do binario
-
 
 */
 
@@ -105,7 +102,7 @@ void buscaR(string& busca, const int indice, MBC filme[]) {
 
 
 
-void registro(MBC filme[], int& indice, int *capacidade) {
+void registro(MBC *&filme, int& indice, int *capacidade) {
     if (indice == *capacidade) {
         RedimensionarVetor(filme, capacidade);
     }
@@ -132,7 +129,7 @@ void registro(MBC filme[], int& indice, int *capacidade) {
     indice++;
 }
 
-void salvarArquivo(MBC filme[], int indice, int inicioNovos) {
+void salvarArquivo(MBC *&filme, int indice, int inicioNovos) {
     ofstream saida("MaioresBilheteriasCinema.csv", ios::app); 
 
     if (saida) {
