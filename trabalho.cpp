@@ -3,11 +3,12 @@
     COISAS QUE TEM Q TERMINAR
 
 
-    Deletar Filme ainda tem q fazer
-    Imprimir Filmes por Intervalo ainda tem q fazer
     Salvar alterações ta dando erro e tem que salvar em binario
     funcao do binario
 
+    colocar 
+    if (cin.fail())
+    transform()
 */
 
 
@@ -24,7 +25,7 @@ struct MBC {
     string nome;
     string diretor;
     float bilheteria;
-
+    bool deletado;
 };
 
 void RedimensionarVetor(MBC *&vetor, int *capacidade) {
@@ -41,6 +42,10 @@ void RedimensionarVetor(MBC *&vetor, int *capacidade) {
 }
 
 void imprime(MBC filme[], int indice) {
+        if (filme[indice].deletado) {
+        return;
+    }
+
     cout << "Ranking: " << filme[indice].ranking << endl
          << "Ano de Lançamento: " << filme[indice].lancamento << endl
          << "Nome: " << filme[indice].nome << endl
@@ -48,6 +53,22 @@ void imprime(MBC filme[], int indice) {
          << "Bilheteria: " << fixed << setprecision(0) << filme[indice].bilheteria << endl
          << "------------------------" << endl;
     }
+
+int BuscaBinariaRecursivaPorRanking(MBC *filmes, int inicio, int fim, int rankingProcurado) {
+    if (inicio > fim) {
+        return -1;
+    }
+    int meio = inicio + (fim - inicio) / 2;
+
+    if (filmes[meio].ranking == rankingProcurado && !filmes[meio].deletado) {
+        return meio;
+    }
+    if (filmes[meio].ranking < rankingProcurado) {
+        return BuscaBinariaRecursivaPorRanking(filmes, meio + 1, fim, rankingProcurado);
+    } else {
+        return BuscaBinariaRecursivaPorRanking(filmes, inicio, meio - 1, rankingProcurado);
+    }
+}
 
 void lerArquivo(MBC filme[], int& indice) {
     ifstream entrada("MaioresBilheteriasCinema.csv");
@@ -79,7 +100,64 @@ void lerArquivo(MBC filme[], int& indice) {
 
 
 }
-void buscaR(string& busca, const int indice, MBC filme[]) {
+void imprimirPorIntervalo(MBC filme[], int indice) {
+    int inicio, fim;
+
+    cout << "Digite o ranking inicial: ";
+    cin >> inicio;
+    cout << "Digite o ranking final: ";
+    cin >> fim;
+
+    if (inicio > fim || inicio < 1 || fim > indice) {
+        cout << "Intervalo inválido. Certifique-se de que o ranking inicial é menor ou igual ao final e está dentro do intervalo disponível (1 a " << indice << ")." << endl;
+        return;
+    }
+    cout << "\nFilmes no intervalo de ranking [" << inicio << " - " << fim << "]:" << endl;
+    for (int i = 0; i < indice; i++) {
+        if (filme[i].ranking >= inicio && filme[i].ranking <= fim) {
+            imprime(filme, i);
+        }
+    }
+}
+
+void DeletarFilme(MBC *&filmes, int &indice) {
+    int rankingProcurado;
+    cout << "Digite o ranking do filme que deseja deletar: ";
+    cin >> rankingProcurado;
+
+    // Busca binária para encontrar o índice do filme
+    int posicao = BuscaBinariaRecursivaPorRanking(filmes, 0, indice - 1, rankingProcurado);
+    if (posicao != -1) {
+        filmes[posicao].deletado = true;  // Marca o filme como deletado
+        cout << "Filme com ranking " << rankingProcurado << " foi marcado como deletado.\n" << endl;
+    } else {
+        cout << "Filme com ranking " << rankingProcurado << " não encontrado.\n" << endl;
+    }
+}
+
+void salvarArquivo(MBC *&filme, int indice) {
+    ofstream saida("MaioresBilheteriasCinema.csv", ios::out | ios::trunc); 
+
+    if (saida) {
+
+        saida << "Ranking ,Ano de Lançamento,Nome do filme,Diretor,Bilheteria Total" << endl;
+
+        for (int i = 0; i < indice; i++) { 
+            if (!filme[i].deletado) {
+                saida << filme[i].ranking << ","
+                      << filme[i].lancamento << ","
+                      << filme[i].nome << ","
+                      << filme[i].diretor << ","
+                      << fixed << setprecision(0) << filme[i].bilheteria << endl;
+            }
+        } 
+        cout << "Novos filmes adicionados ao arquivo com sucesso!" << endl;
+    } else {
+        cout << "Erro ao abrir o arquivo para salvar." << endl;
+    }
+}
+
+void buscaTitulo(string& busca, const int indice, MBC filme[]) {
     cout << "Titulo do filme da busca: ";
     cin.ignore();
     getline(cin, busca);
@@ -100,16 +178,27 @@ void buscaR(string& busca, const int indice, MBC filme[]) {
     }
 }
 
+void ordenarFilmes(MBC filme[], int indice) {
+    // Ordena os filmes por bilheteria (ordem decrescente)
+    for (int i = 0; i < indice - 1; i++) {
+        for (int j = 0; j < indice - i - 1; j++) {
+            if (filme[j].bilheteria < filme[j + 1].bilheteria) {
+                MBC temp = filme[j];
+                filme[j] = filme[j + 1];
+                filme[j + 1] = temp;
+            }
+        }
+    }
+    // Aqui vai atualizar o rankings após a ordenação
+    for (int i = 0; i < indice; i++) {
+        filme[i].ranking = i + 1;
+    }
+}
 
-
-void registro(MBC *&filme, int& indice, int *capacidade) {
+void registrarNovo(MBC *&filme, int& indice, int *capacidade) {
     if (indice == *capacidade) {
         RedimensionarVetor(filme, capacidade);
     }
-
-    cout << "Digite o ranking do filme: ";
-    cin >> filme[indice].ranking;
-    cin.ignore(); 
 
     cout << "Digite o ano de lançamento: ";
     cin >> filme[indice].lancamento;
@@ -123,40 +212,27 @@ void registro(MBC *&filme, int& indice, int *capacidade) {
 
     cout << "Digite a bilheteria : ";
     cin >> filme[indice].bilheteria;
+    cin.ignore();
 
     cout << "Filme registrado com sucesso!" << endl;
-
     indice++;
+    ordenarFilmes(filme, indice);
 }
 
-void salvarArquivo(MBC *&filme, int indice, int inicioNovos) {
-    ofstream saida("MaioresBilheteriasCinema.csv", ios::app); 
-
-    if (saida) {
-        for (int i = inicioNovos; i < indice; i++) { 
-            saida << filme[i].ranking << ","
-                  << filme[i].lancamento << ","
-                  << filme[i].nome << ","
-                  << filme[i].diretor << ","
-                  << fixed << setprecision(0) << filme[i].bilheteria << endl;
-        }
-        cout << "Novos filmes adicionados ao arquivo com sucesso!" << endl;
-    } else {
-        cout << "Erro ao abrir o arquivo para salvar." << endl;
-    }
-}
 void menu(MBC filme[], int& indice, int *capacidade) {
 	int inicioNovos = indice; // Marca a posição inicial dos novos filmes
     int opcao = 999;
     do {
         cout<<"Escolha uma opção:"<<endl;
-        cout<<"\t1. Listar Filmes"<<endl;
-        cout<<"\t2. Cadastrar novo Filme"<<endl;
-        cout<<"\t3. Buscar Filme"<<endl;
-        cout<<"\t4. Deletar Filme"<<endl;
-        cout<<"\t5. Imprimir Filmes por Intervalo"<<endl;
-        cout<<"\t6. Salvar alterações"<<endl;
-        cout<<"\t0. Sair"<<endl;
+        cout<<endl;
+        cout<<"1. Listar Filmes"<<endl;
+        cout<<"2. Cadastrar novo Filme"<<endl;
+        cout<<"3. Buscar Filme"<<endl;
+        cout<<"4. Deletar Filme"<<endl;
+        cout<<"5. Imprimir Filmes por Intervalo"<<endl;
+        cout<<"6. Salvar alterações"<<endl;
+        cout<<"0. Sair"<<endl;
+        cout << endl;
         cout<<"Digite sua opção: ";
         cin >> opcao;
 
@@ -167,15 +243,21 @@ void menu(MBC filme[], int& indice, int *capacidade) {
                 }
             } break;
             case 2: {
-                registro(filme, indice, capacidade);
-             } break;
+                registrarNovo(filme, indice, capacidade);
+            } break;
             case 3: {
                 string busca;
                 cin.ignore();
-                buscaR(busca, indice, filme);
+                buscaTitulo(busca, indice, filme);
             } break;
+            case 4: {
+                DeletarFilme(filme, indice);
+            } break;
+            case 5: {
+                imprimirPorIntervalo(filme, indice);
+            } break;            
             case 6: {
-				salvarArquivo(filme, indice, inicioNovos);
+				salvarArquivo(filme, indice);
 				inicioNovos = indice; // Atualiza o início dos novos registros
 			} break;
 
@@ -196,6 +278,10 @@ int main(){
 
     lerArquivo(filme, indice);
     menu(filme, indice, &capacidade);
+
+    delete[] filme;
+    return 0;
+});
 
     delete[] filme;
     return 0;
