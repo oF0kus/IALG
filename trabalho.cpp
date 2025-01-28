@@ -281,8 +281,4 @@ int main(){
 
     delete[] filme;
     return 0;
-});
-
-    delete[] filme;
-    return 0;
 }
