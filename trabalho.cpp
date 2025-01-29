@@ -135,21 +135,6 @@ void imprimirPorIntervalo(MBC filme[], int indice) {
     }
 }
 
-void DeletarFilme(MBC *&filmes, int &indice) {
-    int rankingProcurado;
-    cout << "Digite o ranking do filme que deseja deletar: ";
-    cin >> rankingProcurado;
-
-    // Busca binária para encontrar o índice do filme
-    int posicao = BuscaBinariaRecursivaPorRanking(filmes, 0, indice - 1, rankingProcurado);
-    if (posicao != -1) {
-        filmes[posicao].deletado = true;  // Marca o filme como deletado
-        cout << "Filme com ranking " << rankingProcurado << " foi marcado como deletado.\n" << endl;
-    } else {
-        cout << "Filme com ranking " << rankingProcurado << " não encontrado.\n" << endl;
-    }
-}
-
 void salvarArquivo(MBC *&filme, int indice) {
     ofstream saida("MaioresBilheteriasCinema.csv", ios::out | ios::trunc); 
 
@@ -215,6 +200,36 @@ void buscaTitulo(int indice, MBC *filmes) {
     ordenarFilmes(filmes, indice);
 }
 
+void compactarVetor(MBC *&filmes, int &indice) {
+    int j = 0; 
+    for (int i = 0; i < indice; i++) {
+        if (!filmes[i].deletado) {
+            filmes[j] = filmes[i]; 
+            j++;
+        }
+    }
+    indice = j; 
+}
+
+
+void DeletarFilme(MBC *&filmes, int &indice) {
+    int rankingProcurado;
+    cout << "Digite o ranking do filme que deseja deletar: ";
+    cin >> rankingProcurado;
+
+    // Busca binária para encontrar o índice do filme
+    int posicao = BuscaBinariaRecursivaPorRanking(filmes, 0, indice - 1, rankingProcurado);
+    if (posicao != -1) {
+        filmes[posicao].deletado = true;  // Marca o filme como deletado
+        cout << "Filme com ranking " << rankingProcurado << " foi marcado como deletado.\n" << endl;
+        
+        compactarVetor(filmes, indice);
+        ordenarFilmes(filmes, indice);
+    
+    } else {
+        cout << "Filme com ranking " << rankingProcurado << " não encontrado.\n" << endl;
+    }
+}
 void registrarNovo(MBC *&filme, int& indice, int *capacidade) {
     if (indice == *capacidade) {
         RedimensionarVetor(filme, capacidade);
@@ -236,7 +251,9 @@ void registrarNovo(MBC *&filme, int& indice, int *capacidade) {
 
     filme[indice].deletado = false;
     cout << "Filme registrado com sucesso!" << endl;
+    
     indice++;
+    ordenarFilmes(filme, indice);
     
 }
 
@@ -288,7 +305,6 @@ void menu(MBC filme[], int& indice, int *capacidade) {
         }
     } while (opcao != 0);
 }
-
 
 int main(){
     int indice = 0, capacidade = 100;
