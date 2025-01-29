@@ -29,7 +29,7 @@ struct MBC {
 };
 
 void RedimensionarVetor(MBC *&vetor, int *capacidade) {
-    int novaCapacidade = (*capacidade) + 5;
+    int novaCapacidade = (*capacidade) + 20;
     MBC *novoVetor = new MBC[novaCapacidade];
 
     for (int i = 0; i < *capacidade; i++) {
@@ -69,37 +69,52 @@ int BuscaBinariaRecursivaPorRanking(MBC *filmes, int inicio, int fim, int rankin
         return BuscaBinariaRecursivaPorRanking(filmes, inicio, meio - 1, rankingProcurado);
     }
 }
+int BuscaBinariaRecursivaPorTitulo(MBC *filmes, int inicio, int fim, const string &tituloProcurado) {
+    if (inicio > fim) {
+        return -1;
+    }
+    int meio = inicio + (fim - inicio) / 2;
+    
 
-void lerArquivo(MBC filme[], int& indice) {
+    if (filmes[meio].nome == tituloProcurado && !filmes[meio].deletado) {
+        return meio;
+    }
+    if (filmes[meio].nome < tituloProcurado) {
+        return BuscaBinariaRecursivaPorTitulo(filmes, meio + 1, fim, tituloProcurado);
+    } else {
+        return BuscaBinariaRecursivaPorTitulo(filmes, inicio, meio - 1, tituloProcurado);
+    }
+}
+
+void lerArquivo(MBC *&filme, int& indice, int *capacidade) {
     ifstream entrada("MaioresBilheteriasCinema.csv");
 
     if (entrada) {
         string descArq;
         char virgula;
-        getline(entrada, descArq); 
+        getline(entrada, descArq);  
 
-        MBC* vetorMBC = new MBC[100];
         int i = 0;
 
-          while (entrada >> vetorMBC[i].ranking >> virgula
-               >> vetorMBC[i].lancamento >> virgula
-               && getline(entrada, vetorMBC[i].nome, ',')
-               && getline(entrada, vetorMBC[i].diretor, ',')
-               && entrada >> vetorMBC[i].bilheteria) {
+        while (entrada >> filme[i].ranking >> virgula
+               >> filme[i].lancamento >> virgula
+               && getline(entrada, filme[i].nome, ',')
+               && getline(entrada, filme[i].diretor, ',')
+               && entrada >> filme[i].bilheteria) {
+            
+            filme[i].deletado = false; 
             i++;
-            if (i >= 100) break;  
+
+            if (i == *capacidade) {  
+                RedimensionarVetor(filme, capacidade);
+            }
         }
         indice = i;
-        for (int j = 0; j < indice; j++) {
-            filme[j] = vetorMBC[j];
-        }
-        delete[] vetorMBC;
     } else {
         cout << "Erro na leitura do arquivo" << endl;
     }
-
-
 }
+
 void imprimirPorIntervalo(MBC filme[], int indice) {
     int inicio, fim;
 
@@ -157,24 +172,13 @@ void salvarArquivo(MBC *&filme, int indice) {
     }
 }
 
-void buscaTitulo(string& busca, const int indice, MBC filme[]) {
-    cout << "Titulo do filme da busca: ";
-    cin.ignore();
-    getline(cin, busca);
-
-    int i = 0, posicao = -1;
-    while (i < indice and busca != filme[i].nome) {
-        i++;
-    }
-
-    if (i < indice and busca == filme[i].nome) {
-        posicao = i;
-    }
-
-    if (posicao == -1) {
-        cout << "O filme não esta disponivel" << endl;
-    } else {
-        imprime(filme, posicao);
+void ordenarPorTitulo(MBC *filmes, int indice) {
+    for (int i = 0; i < indice - 1; i++) {
+        for (int j = 0; j < indice - i - 1; j++) {
+            if (filmes[j].nome > filmes[j + 1].nome) {
+                swap(filmes[j], filmes[j + 1]);
+            }
+        }
     }
 }
 
@@ -193,6 +197,22 @@ void ordenarFilmes(MBC filme[], int indice) {
     for (int i = 0; i < indice; i++) {
         filme[i].ranking = i + 1;
     }
+}
+void buscaTitulo(int indice, MBC *filmes) {
+    cout << "Titulo do filme da busca: ";
+    cin.ignore();
+    string busca;
+    getline(cin, busca);
+
+    ordenarPorTitulo(filmes, indice);
+    int posicao = BuscaBinariaRecursivaPorTitulo(filmes, 0, indice - 1, busca);
+
+    if (posicao == -1) {
+        cout << "O filme não está disponível" << endl;
+    } else {
+        imprime(filmes, posicao);
+    }
+    ordenarFilmes(filmes, indice);
 }
 
 void registrarNovo(MBC *&filme, int& indice, int *capacidade) {
@@ -214,13 +234,13 @@ void registrarNovo(MBC *&filme, int& indice, int *capacidade) {
     cin >> filme[indice].bilheteria;
     cin.ignore();
 
+    filme[indice].deletado = false;
     cout << "Filme registrado com sucesso!" << endl;
     indice++;
-    ordenarFilmes(filme, indice);
+    
 }
 
 void menu(MBC filme[], int& indice, int *capacidade) {
-	int inicioNovos = indice; // Marca a posição inicial dos novos filmes
     int opcao = 999;
     do {
         cout<<"Escolha uma opção:"<<endl;
@@ -238,6 +258,7 @@ void menu(MBC filme[], int& indice, int *capacidade) {
 
         switch (opcao) {
             case 1: {
+                ordenarFilmes(filme, indice);
                 for (int i = 0; i < indice; i++) {
                     imprime(filme, i);
                 }
@@ -246,9 +267,7 @@ void menu(MBC filme[], int& indice, int *capacidade) {
                 registrarNovo(filme, indice, capacidade);
             } break;
             case 3: {
-                string busca;
-                cin.ignore();
-                buscaTitulo(busca, indice, filme);
+                buscaTitulo(indice, filme);
             } break;
             case 4: {
                 DeletarFilme(filme, indice);
@@ -258,7 +277,6 @@ void menu(MBC filme[], int& indice, int *capacidade) {
             } break;            
             case 6: {
 				salvarArquivo(filme, indice);
-				inicioNovos = indice; // Atualiza o início dos novos registros
 			} break;
 
             case 0: {
@@ -276,7 +294,7 @@ int main(){
     int indice = 0, capacidade = 100;
     MBC *filme = new MBC[capacidade];
 
-    lerArquivo(filme, indice);
+    lerArquivo(filme, indice, &capacidade);
     menu(filme, indice, &capacidade);
 
     delete[] filme;
