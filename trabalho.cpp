@@ -5,7 +5,7 @@
 
     Salvar alterações ta dando erro e tem que salvar em binario
     funcao do binario
-
+	quick sort ou merge sort no switch 3
     colocar 
     if (cin.fail())
     transform()
@@ -151,7 +151,7 @@ void salvarArquivo(MBC *&filme, int indice) {
                       << fixed << setprecision(0) << filme[i].bilheteria << endl;
             }
         } 
-        cout << "Novos filmes adicionados ao arquivo com sucesso!" << endl;
+        cout << "Arquivo alterado com sucesso!" << endl;
     } else {
         cout << "Erro ao abrir o arquivo para salvar." << endl;
     }
@@ -267,7 +267,7 @@ void menu(MBC filme[], int& indice, int *capacidade) {
         cout<<"3. Buscar Filme"<<endl;
         cout<<"4. Deletar Filme"<<endl;
         cout<<"5. Imprimir Filmes por Intervalo"<<endl;
-        cout<<"6. Salvar alterações"<<endl;
+        cout<<"6. Salvar as alterações"<<endl;
         cout<<"0. Sair"<<endl;
         cout << endl;
         cout<<"Digite sua opção: ";
