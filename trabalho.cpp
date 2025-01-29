@@ -2,8 +2,7 @@
 
     COISAS QUE TEM Q TERMINAR
 
-
-    Salvar alterações ta dando erro e tem que salvar em binario
+    alterar dados
     funcao do binario
 
     colocar 
@@ -50,7 +49,7 @@ void imprime(MBC filme[], int indice) {
          << "Ano de Lançamento: " << filme[indice].lancamento << endl
          << "Nome: " << filme[indice].nome << endl
          << "Diretor: " << filme[indice].diretor << endl
-         << "Bilheteria: " << fixed << setprecision(0) << filme[indice].bilheteria << endl
+         << "Bilheteria: R$ " << fixed << setprecision(0) << filme[indice].bilheteria << endl
          << "------------------------" << endl;
     }
 
@@ -260,15 +259,19 @@ void registrarNovo(MBC *&filme, int& indice, int *capacidade) {
 void menu(MBC filme[], int& indice, int *capacidade) {
     int opcao = 999;
     do {
+        cout << "╔════════════════════════════════════════════╗\n";
+        cout << "║       MAIORES BILHETERIAS DO CINEMA        ║\n";
+        cout << "╚════════════════════════════════════════════╝\n";
         cout<<"Escolha uma opção:"<<endl;
         cout<<endl;
-        cout<<"1. Listar Filmes"<<endl;
-        cout<<"2. Cadastrar novo Filme"<<endl;
-        cout<<"3. Buscar Filme"<<endl;
-        cout<<"4. Deletar Filme"<<endl;
-        cout<<"5. Imprimir Filmes por Intervalo"<<endl;
-        cout<<"6. Salvar alterações"<<endl;
-        cout<<"0. Sair"<<endl;
+        cout<<"1) Listar Filmes"<<endl;
+        cout<<"2) Cadastrar novo Filme"<<endl;
+        cout<<"3) Buscar Filme"<<endl;
+        cout<<"4) Deletar Filme"<<endl;
+        cout<<"5) Imprimir Filmes por Intervalo"<<endl;
+        cout<<"6) Alterar Dados de um Filme"<<endl;
+        cout<<"7) Salvar alterações"<<endl;
+        cout<<"0) Sair"<<endl;
         cout << endl;
         cout<<"Digite sua opção: ";
         cin >> opcao;
@@ -291,8 +294,11 @@ void menu(MBC filme[], int& indice, int *capacidade) {
             } break;
             case 5: {
                 imprimirPorIntervalo(filme, indice);
-            } break;            
+            } break; 
             case 6: {
+                cout << "tem q fazer ainda" << endl;
+            } break;                      
+            case 7: {
 				salvarArquivo(filme, indice);
 			} break;
 
