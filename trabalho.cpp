@@ -23,7 +23,7 @@ struct MBC {
     int lancamento;
     string nome;
     string diretor;
-    float bilheteria;
+    double bilheteria;
     bool deletado;
 };
 
@@ -41,17 +41,33 @@ void RedimensionarVetor(MBC *&vetor, int *capacidade) {
 }
 
 void imprime(MBC filme[], int indice) {
-        if (filme[indice].deletado) {
-        return;
+    if (filme[indice].deletado) return;
+
+    double bilheteria = filme[indice].bilheteria;
+
+    // Separa parte inteira e decimal
+    long long parteInteira = static_cast<long long>(bilheteria);
+    int centavos = static_cast<int>((bilheteria - parteInteira) * 100 + 0.5); // Arredonda para 2 dígitos
+
+    // Formata a parte inteira com pontos
+    string strInteira = to_string(parteInteira);
+    int tamanho = strInteira.size();
+    for (int i = tamanho - 3; i > 0; i -= 3) {
+        strInteira.insert(i, ".");
     }
+
+    // Formata os centavos (sempre 2 dígitos)
+    stringstream ss;
+    ss << setw(2) << setfill('0') << abs(centavos); // Garante 2 dígitos, mesmo se centavos < 10
+    string strDecimal = ss.str();
 
     cout << "Ranking: " << filme[indice].ranking << endl
          << "Ano de Lançamento: " << filme[indice].lancamento << endl
          << "Nome: " << filme[indice].nome << endl
          << "Diretor: " << filme[indice].diretor << endl
-         << "Bilheteria: R$ " << fixed << setprecision(0) << filme[indice].bilheteria << endl
+         << "Bilheteria: R$ " << strInteira << "," << strDecimal << endl
          << "------------------------" << endl;
-    }
+}
 
 int BuscaBinariaRecursivaPorRanking(MBC *filmes, int inicio, int fim, int rankingProcurado) {
     if (inicio > fim) {
