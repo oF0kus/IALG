@@ -1,15 +1,15 @@
 /*
-
+	ALUNOS:
+	CAROLINA COSTA UDE
+	FERNANDO CHAVES SCARABELI 
+	JOSÉ VÍTOR MACHADO DE OLIVEIRA
+	
+	
     COISAS QUE TEM Q TERMINAR
+    funcao do binário
+    poderia preservar o antigo valor do dado alterado entre parentes na função alterar dados
 
-    alterar dados
-    funcao do binario
-
-    colocar 
-    if (cin.fail())
-    transform()
 */
-
 
 #include <iostream>
 #include <fstream>
@@ -139,7 +139,7 @@ void imprimirPorIntervalo(MBC filme[], int indice) {
     cin >> fim;
 
     if (inicio > fim || inicio < 1 || fim > indice) {
-        cout << "Intervalo inválido. Certifique-se de que o ranking inicial é menor ou igual ao final e está dentro do intervalo disponível (1 a " << indice << ")." << endl;
+        cout << "Intervalo inválido. Certifique-se de que o ranking inicial é um intervalo disponível (1 a " << indice << ")." << endl;
         return;
     }
     cout << "\nFilmes no intervalo de ranking [" << inicio << " - " << fim << "]:" << endl;
@@ -166,7 +166,7 @@ void salvarArquivo(MBC *&filme, int indice) {
                       << fixed << setprecision(0) << filme[i].bilheteria << endl;
             }
         } 
-        cout << "Novos filmes adicionados ao arquivo com sucesso!" << endl;
+        cout << "Arquivo atualizado com sucesso!" << endl;
     } else {
         cout << "Erro ao abrir o arquivo para salvar." << endl;
     }
@@ -210,6 +210,7 @@ void buscaTitulo(int indice, MBC *filmes) {
     if (posicao == -1) {
         cout << "O filme não está disponível" << endl;
     } else {
+		cout<<"------------------------"<<endl;
         imprime(filmes, posicao);
     }
     ordenarFilmes(filmes, indice);
@@ -245,6 +246,7 @@ void DeletarFilme(MBC *&filmes, int &indice) {
         cout << "Filme com ranking " << rankingProcurado << " não encontrado.\n" << endl;
     }
 }
+
 void registrarNovo(MBC *&filme, int& indice, int *capacidade) {
     if (indice == *capacidade) {
         RedimensionarVetor(filme, capacidade);
@@ -270,6 +272,42 @@ void registrarNovo(MBC *&filme, int& indice, int *capacidade) {
     indice++;
     ordenarFilmes(filme, indice);
     
+}
+
+//função que altera dados dos filmes, basta adicionar o ranking
+void AlterarFilme(MBC *filmes, int indice) {
+    int rankingProcurado;
+    cout << "Digite o ranking do filme que deseja alterar: ";
+    cin >> rankingProcurado;
+
+    int posicao = BuscaBinariaRecursivaPorRanking(filmes, 0, indice - 1, rankingProcurado);
+
+    if (posicao != -1) {
+        cout << "Filme encontrado: " << filmes[posicao].nome << endl;
+
+        cout << "\nDigite os novos dados do filme:" << endl;
+
+     
+        cout << "Nome: ";
+        cin.ignore();  // Limpa o buffer
+        getline(cin, filmes[posicao].nome);
+        
+      
+        cout << "Diretor: ";
+        getline(cin, filmes[posicao].diretor);
+
+    
+        cout << "Ano de Lançamento: ";
+        cin >> filmes[posicao].lancamento;
+
+        
+        cout << "Bilheteira: ";
+        cin >> filmes[posicao].bilheteria;
+
+        cout << "Dados alterados com sucesso!" << endl;
+    } else {
+        cout << "Filme com ranking " << rankingProcurado << " não encontrado." << endl;
+    }
 }
 
 void menu(MBC filme[], int& indice, int *capacidade) {
@@ -312,8 +350,8 @@ void menu(MBC filme[], int& indice, int *capacidade) {
                 imprimirPorIntervalo(filme, indice);
             } break; 
             case 6: {
-                cout << "tem q fazer ainda" << endl;
-            } break;                      
+				AlterarFilme(filme, indice);
+			} break;                    
             case 7: {
 				salvarArquivo(filme, indice);
 			} break;
