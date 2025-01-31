@@ -2,8 +2,6 @@
 
     COISAS QUE TEM Q TERMINAR
 
-    alterar dados
-    funcao do binario
 
     colocar 
     if (cin.fail())
