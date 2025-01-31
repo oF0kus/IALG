@@ -27,7 +27,7 @@ struct MBC {
 };
 
 void RedimensionarVetor(MBC *&vetor, int *capacidade) {
-    int novaCapacidade = (*capacidade) + 20;
+    int novaCapacidade = (*capacidade) + 10;
     MBC *novoVetor = new MBC[novaCapacidade];
 
     for (int i = 0; i < *capacidade; i++) {
@@ -335,32 +335,31 @@ void AlterarFilme(MBC *filmes, int indice) {
     }
 }
 
-
-void salvarEmBinario(MBC* filme, int indice) {
-    ofstream saidaBin("MaioresBilheteriasCinema.bin", ios::binary | ios::out | ios::trunc);
-
-    if (!saidaBin) {
-        cerr << "Erro ao abrir o arquivo binário para escrita." << endl;
+void salvarEmBinario(const string& nomeArquivo, const MBC& filme) {
+    ofstream arquivo(nomeArquivo, ios::binary | ios::app);
+    if (!arquivo.is_open()) {
+        cerr << "Erro ao abrir o arquivo para escrita!" << endl;
         return;
     }
 
-    saidaBin.write(reinterpret_cast<const char*>(&indice), sizeof(int)); // Salva o número de filmes
+    // Escreve os dados primitivos normalmente
+    arquivo.write(reinterpret_cast<const char*>(&filme.ranking), sizeof(filme.ranking));
+    arquivo.write(reinterpret_cast<const char*>(&filme.lancamento), sizeof(filme.lancamento));
+    arquivo.write(reinterpret_cast<const char*>(&filme.bilheteria), sizeof(filme.bilheteria));
+    arquivo.write(reinterpret_cast<const char*>(&filme.deletado), sizeof(filme.deletado));
 
-    for (int i = 0; i < indice; i++) {
-        if (!filme[i].deletado) { 
-            saidaBin.write(reinterpret_cast<const char*>(&filme[i]), sizeof(MBC));
-        }
-    }
+    // Escreve o tamanho das strings antes dos dados
+    size_t tamanhoNome = filme.nome.size();
+    size_t tamanhoDiretor = filme.diretor.size();
+    
+    arquivo.write(reinterpret_cast<const char*>(&tamanhoNome), sizeof(size_t));
+    arquivo.write(filme.nome.c_str(), tamanhoNome);
+    
+    arquivo.write(reinterpret_cast<const char*>(&tamanhoDiretor), sizeof(size_t));
+    arquivo.write(filme.diretor.c_str(), tamanhoDiretor);
 
-    if (!saidaBin) {
-        cerr << "Erro ao escrever no arquivo binário." << endl;
-    } else {
-        cout << "Dados salvos em binário com sucesso!" << endl;
-    }
-
-    saidaBin.close();
+    arquivo.close();
 }
-
 
 void menu(MBC filme[], int& indice, int *capacidade) {
     int opcao = 999;
@@ -403,7 +402,11 @@ void menu(MBC filme[], int& indice, int *capacidade) {
             } break;                      
             case 7: {
                 salvarArquivo(filme, indice);
-                salvarEmBinario(filme, *capacidade);
+                 for (int i = 0; i < indice; i++) {
+                    if (!filme[i].deletado) {
+                        salvarEmBinario("MaioresBilheteriasCinema.bin", filme[i]);
+                    }
+                }
             } break;
             case 0: {
                 cout << "Saindo..." << endl;
