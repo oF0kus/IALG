@@ -1,3 +1,13 @@
+/*PARTICIPANTES:
+Fernando Chaves Scarabeli
+Jose Vitor Machado
+Caroline Ude
+
+Campos:  Ranking (inteiro), Lancamento (inteiro), Nome (string com espaços),
+Diretor(string com espaços), Bilheteria (Double)
+
+TEMA: Maiores bilheterias do Cinema*/
+
 #include <iostream>
 #include <fstream>
 #include <string>
@@ -428,7 +438,7 @@ void AlterarFilme(MBC *filmes, int indice) {
 }
 
 void salvarEmBinario(const string &nomeArquivo, const MBC &filme) {
-    ofstream arquivo(nomeArquivo, ios::binary | ios::app);
+    ofstream arquivo(nomeArquivo, ios::binary | ios::out | ios::trunc);
     if (!arquivo.is_open()) {
         cerr << "Erro ao abrir o arquivo para escrita!" << endl;
         return;
