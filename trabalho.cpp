@@ -122,14 +122,19 @@ void imprimirPorIntervalo(MBC filme[], int indice) {
     int inicio, fim;
 
     cout << "Digite o ranking inicial: ";
-    cin >> inicio;
-    cout << "Digite o ranking final: ";
-    cin >> fim;
-
-    if (inicio > fim || inicio < 1 || fim > indice) {
-        cout << "Intervalo inválido. Certifique-se de que o ranking inicial é menor ou igual ao final e está dentro do intervalo disponível (1 a " << indice << ")." << endl;
-        return;
+    while (!(cin >> inicio) || inicio < 1 || inicio > indice) {
+        cin.clear();
+        cin.ignore(1000, '\n');
+        cout << "Entrada inválida. Digite um ranking válido (1 a " << indice << "): ";
     }
+
+    cout << "Digite o ranking final: ";
+    while (!(cin >> fim) || fim < inicio || fim > indice) {
+        cin.clear();
+        cin.ignore(1000, '\n');
+        cout << "Entrada inválida. Digite um ranking válido (" << inicio << " a " << indice << "): ";
+    }
+
     cout << "\nFilmes no intervalo de ranking [" << inicio << " - " << fim << "]:" << endl;
     for (int i = 0; i < indice; i++) {
         if (filme[i].ranking >= inicio && filme[i].ranking <= fim) {
@@ -269,10 +274,6 @@ void ordenarFilmes(MBC filmes[], int indice) {
     }
 }
 
-// ... (As demais funções permanecem inalteradas: buscaTitulo, compactarVetor,
-// DeletarFilme, registrarNovo, listarFilmes, AlterarFilme, salvarEmBinario,
-// salvarArquivo, menu, main)
-
 void buscaTitulo(int indice, MBC *filmes) {
     cout << "Titulo do filme da busca: ";
     cin.ignore();
@@ -304,7 +305,11 @@ void compactarVetor(MBC *&filmes, int &indice) {
 void DeletarFilme(MBC *&filmes, int &indice) {
     int rankingProcurado;
     cout << "Digite o ranking do filme que deseja deletar: ";
-    cin >> rankingProcurado;
+    while (!(cin >> rankingProcurado) || rankingProcurado < 1 || rankingProcurado > indice) {
+        cin.clear();
+        cin.ignore(1000, '\n');
+        cout << "Entrada inválida. Digite um ranking válido (1 a " << indice << "): ";
+    }
 
     int posicao = BuscaBinariaRecursivaPorRanking(filmes, 0, indice - 1, rankingProcurado);
     if (posicao != -1) {
@@ -325,7 +330,11 @@ void registrarNovo(MBC *&filme, int &indice, int *capacidade) {
     }
 
     cout << "Digite o ano de lançamento: ";
-    cin >> filme[indice].lancamento;
+    while (!(cin >> filme[indice].lancamento)) {
+        cin.clear();
+        cin.ignore(1000, '\n');
+        cout << "Entrada inválida. Digite um ano válido: ";
+    }
     cin.ignore();
 
     cout << "Digite o nome do filme: ";
@@ -334,8 +343,12 @@ void registrarNovo(MBC *&filme, int &indice, int *capacidade) {
     cout << "Digite o nome do diretor: ";
     getline(cin, filme[indice].diretor);
 
-    cout << "Digite a bilheteria : ";
-    cin >> filme[indice].bilheteria;
+    cout << "Digite a bilheteria: ";
+    while (!(cin >> filme[indice].bilheteria)) {
+        cin.clear();
+        cin.ignore(1000, '\n');
+        cout << "Entrada inválida. Digite um valor válido: ";
+    }
     cin.ignore();
 
     filme[indice].deletado = false;
@@ -351,13 +364,10 @@ void listarFilmes(MBC filme[], int indice) {
     cout << "1) Por Ranking\n";
     cout << "2) Por Ordem Alfabética\n";
     cout << "Digite sua escolha: ";
-    cin >> escolha;
-
-    if (cin.fail() || (escolha != 1 && escolha != 2)) {
+    while (!(cin >> escolha) || (escolha != 1 && escolha != 2)) {
         cin.clear();
         cin.ignore(1000, '\n');
-        cout << "Opção inválida! Listando por ranking (padrão).\n";
-        escolha = 1;
+        cout << "Opção inválida! Digite 1 ou 2: ";
     }
 
     if (escolha == 1) {
@@ -377,7 +387,11 @@ void listarFilmes(MBC filme[], int indice) {
 void AlterarFilme(MBC *filmes, int indice) {
     int rankingProcurado;
     cout << "Digite o ranking do filme que deseja alterar: ";
-    cin >> rankingProcurado;
+    while (!(cin >> rankingProcurado) || rankingProcurado < 1 || rankingProcurado > indice) {
+        cin.clear();
+        cin.ignore(1000, '\n');
+        cout << "Entrada inválida. Digite um ranking válido (1 a " << indice << "): ";
+    }
 
     int posicao = BuscaBinariaRecursivaPorRanking(filmes, 0, indice - 1, rankingProcurado);
 
@@ -394,10 +408,18 @@ void AlterarFilme(MBC *filmes, int indice) {
         getline(cin, filmes[posicao].diretor);
 
         cout << "Ano de Lançamento: ";
-        cin >> filmes[posicao].lancamento;
+        while (!(cin >> filmes[posicao].lancamento)) {
+            cin.clear();
+            cin.ignore(1000, '\n');
+            cout << "Entrada inválida. Digite um ano válido: ";
+        }
 
-        cout << "Bilheteira: ";
-        cin >> filmes[posicao].bilheteria;
+        cout << "Bilheteria: ";
+        while (!(cin >> filmes[posicao].bilheteria)) {
+            cin.clear();
+            cin.ignore(1000, '\n');
+            cout << "Entrada inválida. Digite um valor válido: ";
+        }
 
         cout << "Dados alterados com sucesso!" << endl;
     } else {
@@ -447,7 +469,11 @@ void menu(MBC filme[], int &indice, int *capacidade) {
         cout << "0) Sair" << endl;
         cout << endl;
         cout << "Digite sua opção: ";
-        cin >> opcao;
+        while (!(cin >> opcao) || opcao < 0 || opcao > 7) {
+            cin.clear();
+            cin.ignore(1000, '\n');
+            cout << "Opção inválida! Digite um número entre 0 e 7: ";
+        }
 
         switch (opcao) {
             case 1: {
