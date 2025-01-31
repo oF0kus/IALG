@@ -7,7 +7,6 @@
 
     colocar 
     if (cin.fail())
-    transform()
 */
 
 
@@ -226,7 +225,6 @@ void compactarVetor(MBC *&filmes, int &indice) {
     indice = j; 
 }
 
-
 void DeletarFilme(MBC *&filmes, int &indice) {
     int rankingProcurado;
     cout << "Digite o ranking do filme que deseja deletar: ";
@@ -272,6 +270,98 @@ void registrarNovo(MBC *&filme, int& indice, int *capacidade) {
     
 }
 
+void listarFilmes(MBC filme[], int indice) {
+    int escolha;
+    cout << "Escolha a ordem de listagem:\n";
+    cout << "1) Por Ranking\n";
+    cout << "2) Por Ordem Alfabética\n";
+    cout << "Digite sua escolha: ";
+    cin >> escolha;
+
+    if (cin.fail() || (escolha != 1 && escolha != 2)) {
+        cin.clear();
+        cin.ignore(1000, '\n');
+        cout << "Opção inválida! Listando por ranking (padrão).\n";
+        escolha = 1; 
+    }
+
+    if (escolha == 1) {
+        ordenarFilmes(filme, indice); 
+        for (int i = 0; i < indice; i++) {
+            imprime(filme, i);
+        }
+    } else if (escolha == 2) {
+        ordenarPorTitulo(filme, indice); 
+        for (int i = 0; i < indice; i++) {
+            imprime(filme, i);
+        }
+        ordenarFilmes(filme, indice); 
+    }
+}
+
+//função que altera dados dos filmes, basta adicionar o ranking
+void AlterarFilme(MBC *filmes, int indice) {
+    int rankingProcurado;
+    cout << "Digite o ranking do filme que deseja alterar: ";
+    cin >> rankingProcurado;
+
+    int posicao = BuscaBinariaRecursivaPorRanking(filmes, 0, indice - 1, rankingProcurado);
+
+    if (posicao != -1) {
+        cout << "Filme encontrado: " << filmes[posicao].nome << endl;
+
+        cout << "\nDigite os novos dados do filme:" << endl;
+
+     
+        cout << "Nome: ";
+        cin.ignore();  // Limpa o buffer
+        getline(cin, filmes[posicao].nome);
+        
+      
+        cout << "Diretor: ";
+        getline(cin, filmes[posicao].diretor);
+
+    
+        cout << "Ano de Lançamento: ";
+        cin >> filmes[posicao].lancamento;
+
+        
+        cout << "Bilheteira: ";
+        cin >> filmes[posicao].bilheteria;
+
+        cout << "Dados alterados com sucesso!" << endl;
+    } else {
+        cout << "Filme com ranking " << rankingProcurado << " não encontrado." << endl;
+    }
+}
+
+
+void salvarEmBinario(MBC* filme, int indice) {
+    ofstream saidaBin("MaioresBilheteriasCinema.bin", ios::binary | ios::out | ios::trunc);
+
+    if (!saidaBin) {
+        cerr << "Erro ao abrir o arquivo binário para escrita." << endl;
+        return;
+    }
+
+    saidaBin.write(reinterpret_cast<const char*>(&indice), sizeof(int)); // Salva o número de filmes
+
+    for (int i = 0; i < indice; i++) {
+        if (!filme[i].deletado) { 
+            saidaBin.write(reinterpret_cast<const char*>(&filme[i]), sizeof(MBC));
+        }
+    }
+
+    if (!saidaBin) {
+        cerr << "Erro ao escrever no arquivo binário." << endl;
+    } else {
+        cout << "Dados salvos em binário com sucesso!" << endl;
+    }
+
+    saidaBin.close();
+}
+
+
 void menu(MBC filme[], int& indice, int *capacidade) {
     int opcao = 999;
     do {
@@ -294,10 +384,7 @@ void menu(MBC filme[], int& indice, int *capacidade) {
 
         switch (opcao) {
             case 1: {
-                ordenarFilmes(filme, indice);
-                for (int i = 0; i < indice; i++) {
-                    imprime(filme, i);
-                }
+                listarFilmes(filme, indice);
             } break;
             case 2: {
                 registrarNovo(filme, indice, capacidade);
@@ -312,12 +399,12 @@ void menu(MBC filme[], int& indice, int *capacidade) {
                 imprimirPorIntervalo(filme, indice);
             } break; 
             case 6: {
-                cout << "tem q fazer ainda" << endl;
+                AlterarFilme(filme, indice);
             } break;                      
             case 7: {
-				salvarArquivo(filme, indice);
-			} break;
-
+                salvarArquivo(filme, indice);
+                salvarEmBinario(filme, *capacidade);
+            } break;
             case 0: {
                 cout << "Saindo..." << endl;
             } break;
@@ -329,7 +416,7 @@ void menu(MBC filme[], int& indice, int *capacidade) {
 }
 
 int main(){
-    int indice = 0, capacidade = 100;
+    int indice = 0, capacidade = 40;
     MBC *filme = new MBC[capacidade];
 
     lerArquivo(filme, indice, &capacidade);
