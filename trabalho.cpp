@@ -1,13 +1,3 @@
-/*PARTICIPANTES:
-Fernando Chaves Scarabeli
-Jose Vitor Machado
-Caroline Ude
-
-Campos:  Ranking (inteiro), Lancamento (inteiro), Nome (string com espaços),
-Diretor(string com espaços), Bilheteria (Double)
-
-TEMA: Maiores bilheterias do Cinema*/
-
 #include <iostream>
 #include <fstream>
 #include <string>
@@ -128,6 +118,58 @@ void lerArquivo(MBC *&filme, int &indice, int *capacidade) {
     }
 }
 
+void lerArquivoBinario(MBC *&filme, int &indice, int *capacidade) {
+    ifstream entrada("MaioresBilheteriasCinema.bin", ios::binary);
+
+    if (!entrada) {
+        cout << "Arquivo binário não encontrado. Iniciando com dados vazios." << endl;
+        return;
+    }
+
+    MBC temp;
+    // Utiliza a leitura do campo ranking para controlar o loop.
+    while (entrada.read(reinterpret_cast<char*>(&temp.ranking), sizeof(temp.ranking))) {
+        entrada.read(reinterpret_cast<char*>(&temp.lancamento), sizeof(temp.lancamento));
+        entrada.read(reinterpret_cast<char*>(&temp.bilheteria), sizeof(temp.bilheteria));
+        entrada.read(reinterpret_cast<char*>(&temp.deletado), sizeof(temp.deletado));
+
+        // Lê o nome
+        size_t tamanhoNome;
+        entrada.read(reinterpret_cast<char*>(&tamanhoNome), sizeof(tamanhoNome));
+        char* bufferNome = new char[tamanhoNome + 1];
+        entrada.read(bufferNome, tamanhoNome);
+        bufferNome[tamanhoNome] = '\0';
+        temp.nome = bufferNome;
+        delete[] bufferNome;
+
+        // Lê o diretor
+        size_t tamanhoDiretor;
+        entrada.read(reinterpret_cast<char*>(&tamanhoDiretor), sizeof(tamanhoDiretor));
+        char* bufferDiretor = new char[tamanhoDiretor + 1];
+        entrada.read(bufferDiretor, tamanhoDiretor);
+        bufferDiretor[tamanhoDiretor] = '\0';
+        temp.diretor = bufferDiretor;
+        delete[] bufferDiretor;
+
+        // Verifica se houve erro durante a leitura dos campos
+        if (!entrada) {
+            cout << "Erro ao ler os dados do arquivo binário." << endl;
+            break;
+        }
+
+        // Redimensiona o vetor se necessário
+        if (indice >= *capacidade) {
+            RedimensionarVetor(filme, capacidade);
+        }
+
+        // Adiciona o filme ao vetor
+        filme[indice] = temp;
+        indice++;
+    }
+
+    entrada.close();
+}
+
 void imprimirPorIntervalo(MBC filme[], int indice) {
     int inicio, fim;
 
@@ -172,6 +214,21 @@ void salvarArquivo(MBC *&filme, int indice) {
     } else {
         cout << "Erro ao abrir o arquivo para salvar." << endl;
     }
+}
+
+void salvarEmBinario(ofstream &arquivo, const MBC &filme) {
+    arquivo.write(reinterpret_cast<const char*>(&filme.ranking), sizeof(filme.ranking));
+    arquivo.write(reinterpret_cast<const char*>(&filme.lancamento), sizeof(filme.lancamento));
+    arquivo.write(reinterpret_cast<const char*>(&filme.bilheteria), sizeof(filme.bilheteria));
+    arquivo.write(reinterpret_cast<const char*>(&filme.deletado), sizeof(filme.deletado));
+
+    size_t tamanhoNome = filme.nome.size();
+    arquivo.write(reinterpret_cast<const char*>(&tamanhoNome), sizeof(size_t));
+    arquivo.write(filme.nome.c_str(), tamanhoNome);
+
+    size_t tamanhoDiretor = filme.diretor.size();
+    arquivo.write(reinterpret_cast<const char*>(&tamanhoDiretor), sizeof(size_t));
+    arquivo.write(filme.diretor.c_str(), tamanhoDiretor);
 }
 
 // Merge Sort para ordenação por título
@@ -437,30 +494,6 @@ void AlterarFilme(MBC *filmes, int indice) {
     }
 }
 
-void salvarEmBinario(const string &nomeArquivo, const MBC &filme) {
-    ofstream arquivo(nomeArquivo, ios::binary | ios::out | ios::trunc);
-    if (!arquivo.is_open()) {
-        cerr << "Erro ao abrir o arquivo para escrita!" << endl;
-        return;
-    }
-
-    arquivo.write(reinterpret_cast<const char *>(&filme.ranking), sizeof(filme.ranking));
-    arquivo.write(reinterpret_cast<const char *>(&filme.lancamento), sizeof(filme.lancamento));
-    arquivo.write(reinterpret_cast<const char *>(&filme.bilheteria), sizeof(filme.bilheteria));
-    arquivo.write(reinterpret_cast<const char *>(&filme.deletado), sizeof(filme.deletado));
-
-    size_t tamanhoNome = filme.nome.size();
-    size_t tamanhoDiretor = filme.diretor.size();
-
-    arquivo.write(reinterpret_cast<const char *>(&tamanhoNome), sizeof(size_t));
-    arquivo.write(filme.nome.c_str(), tamanhoNome);
-
-    arquivo.write(reinterpret_cast<const char *>(&tamanhoDiretor), sizeof(size_t));
-    arquivo.write(filme.diretor.c_str(), tamanhoDiretor);
-
-    arquivo.close();
-}
-
 void menu(MBC filme[], int &indice, int *capacidade) {
     int opcao = 999;
     do {
@@ -506,10 +539,17 @@ void menu(MBC filme[], int &indice, int *capacidade) {
             } break;
             case 7: {
                 salvarArquivo(filme, indice);
-                for (int i = 0; i < indice; i++) {
-                    if (!filme[i].deletado) {
-                        salvarEmBinario("MaioresBilheteriasCinema.bin", filme[i]);
+                ofstream arquivoBin("MaioresBilheteriasCinema.bin", ios::binary | ios::trunc);
+                if (arquivoBin.is_open()) {
+                    for (int i = 0; i < indice; i++) {
+                        if (!filme[i].deletado) {
+                            salvarEmBinario(arquivoBin, filme[i]);
+                        }
                     }
+                    arquivoBin.close();
+                    cout << "Dados salvos no arquivo binário com sucesso!" << endl;
+                } else {
+                    cout << "Erro ao salvar no arquivo binário." << endl;
                 }
             } break;
             case 0: {
@@ -526,7 +566,14 @@ int main() {
     int indice = 0, capacidade = 40;
     MBC *filme = new MBC[capacidade];
 
-    lerArquivo(filme, indice, &capacidade);
+    // Tenta carregar do arquivo binário
+    lerArquivoBinario(filme, indice, &capacidade);
+
+    // Se não houver dados no binário, carrega do CSV
+    if (indice == 0) {
+        lerArquivo(filme, indice, &capacidade);
+    }
+
     menu(filme, indice, &capacidade);
 
     delete[] filme;
