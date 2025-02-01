@@ -202,7 +202,7 @@ void imprimirPorIntervalo(MBC filme[], int indice) {
     }
     
     //Imprime os filmes nos intervalos desejados
-    cout << "\nFilmes no intervalo de ranking [" << inicio << " - " << fim << "]:" << endl;
+    cout  << endl << "Filmes no intervalo de ranking [" << inicio << " - " << fim << "]:" << endl;
     for (int i = 0; i < indice; i++) {
         if (filme[i].ranking >= inicio && filme[i].ranking <= fim) {
             imprime(filme, i);
@@ -404,14 +404,14 @@ void DeletarFilme(MBC *&filmes, int &indice) {
     int posicao = BuscaBinariaRecursivaPorRanking(filmes, 0, indice - 1, rankingProcurado);
     if (posicao != -1) {
         filmes[posicao].deletado = true;
-        cout << "Filme com ranking " << rankingProcurado << " foi marcado como deletado.\n" << endl;
+        cout << "Filme com ranking " << rankingProcurado << " foi marcado como deletado." << endl << endl;
 
         //Remove o filme e ordena a lista novamente
         compactarVetor(filmes, indice);
         ordenarFilmes(filmes, indice);
 
     } else {
-        cout << "Filme com ranking " << rankingProcurado << " não encontrado.\n" << endl;
+        cout << "Filme com ranking " << rankingProcurado << " não encontrado." << endl << endl;
     }
 }
 
@@ -455,9 +455,9 @@ void registrarNovo(MBC *&filme, int &indice, int *capacidade) {
 
 void listarFilmes(MBC filme[], int indice) {
     int escolha;
-    cout << "Escolha a ordem de listagem:\n";
-    cout << "1) Por Ranking\n";
-    cout << "2) Por Ordem Alfabética\n";
+    cout << "Escolha a ordem de listagem:" << endl;
+    cout << "1) Por Ranking" << endl;
+    cout << "2) Por Ordem Alfabética" << endl;
     cout << "Digite sua escolha: ";
 
     //Verifica se o campo 'e preenchido correntamente  
@@ -501,7 +501,7 @@ void AlterarFilme(MBC *filmes, int indice) {
     if (posicao != -1) {
         cout << "Filme encontrado: " << filmes[posicao].nome << endl;
 
-        cout << "\nDigite os novos dados do filme:" << endl;
+        cout << endl << "Digite os novos dados do filme:" << endl;
 
         cout << "Nome: ";
         cin.ignore();
@@ -537,9 +537,9 @@ void AlterarFilme(MBC *filmes, int indice) {
 void menu(MBC filme[], int &indice, int *capacidade) {
     int opcao = 999;
     do {
-        cout << "╔════════════════════════════════════════════╗\n";
-        cout << "║       MAIORES BILHETERIAS DO CINEMA        ║\n";
-        cout << "╚════════════════════════════════════════════╝\n";
+        cout << "╔════════════════════════════════════════════╗" << endl;
+        cout << "║       MAIORES BILHETERIAS DO CINEMA        ║" << endl;
+        cout << "╚════════════════════════════════════════════╝" << endl;
         cout << "Escolha uma opção:" << endl;
         cout << endl;
         cout << "1) Listar Filmes" << endl;
