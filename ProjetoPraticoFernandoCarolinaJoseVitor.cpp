@@ -15,6 +15,7 @@ Campos: Ranking (inteiro), Ano de lançamento (inteiro),Nome do filme (string co
 #include <string>
 #include <iomanip>
 #include <sstream>
+#include <limits>
 
 using namespace std;
 
@@ -486,33 +487,38 @@ void listarFilmes(MBC filme[], int indice) {
 }
 
 void AlterarFilme(MBC *filmes, int indice) {
+    if (indice <= 0 || filmes == nullptr) {
+        cout << "Não há filmes para alterar." << endl;
+        return;
+    }
+
     int rankingProcurado;
-    cout << "Digite o ranking do filme que deseja alterar: ";\
-    
-    //Verifica se o campo 'e preenchido correntamente  
+    cout << "Digite o ranking do filme que deseja alterar: ";
+
+    // Verifica se a entrada é válida e dentro do intervalo
     while (!(cin >> rankingProcurado) || rankingProcurado < 1 || rankingProcurado > indice) {
         cin.clear();
-        cin.ignore(1000, '\n');
+        cin.ignore(numeric_limits<streamsize>::max(), '\n');
         cout << "Entrada inválida. Digite um ranking válido (1 a " << indice << "): ";
     }
 
     int posicao = BuscaBinariaRecursivaPorRanking(filmes, 0, indice - 1, rankingProcurado);
 
-    if (posicao != -1) {
+    if (posicao >= 0 && posicao < indice ) {
         cout << "Filme encontrado: " << filmes[posicao].nome << endl;
 
         cout << endl << "Digite os novos dados do filme:" << endl;
 
         cout << "Nome: ";
-        cin.ignore();
+        cin.ignore(numeric_limits<streamsize>::max(), '\n');
         getline(cin, filmes[posicao].nome);
 
         cout << "Diretor: ";
         getline(cin, filmes[posicao].diretor);
 
         cout << "Ano de Lançamento: ";
-        
-        //Verifica se o campo 'e preenchido correntamente
+
+        // Verifica se a entrada é válida para o ano de lançamento
         while (!(cin >> filmes[posicao].lancamento)) {
             cin.clear();
             cin.ignore(1000, '\n');
@@ -521,7 +527,7 @@ void AlterarFilme(MBC *filmes, int indice) {
 
         cout << "Bilheteria: ";
 
-        //Verifica se o campo 'e preenchido correntamente
+        // Verifica se a entrada é válida para a bilheteira
         while (!(cin >> filmes[posicao].bilheteria)) {
             cin.clear();
             cin.ignore(1000, '\n');
