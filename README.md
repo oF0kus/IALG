@@ -1,2 +1,0 @@
-# IALG
-Trabalho de IALG  
